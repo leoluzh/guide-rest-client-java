@@ -23,6 +23,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
+import io.openliberty.guides.consumingrest.Consumer;
 import io.openliberty.guides.consumingrest.model.Artist;
 //import io.openliberty.guides.consumingrest.Consumer;
 
@@ -39,5 +40,36 @@ public class ArtistResource {
     }
     
     //Add additional methods here
+    
+    @GET
+    @Path("jsonString")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String getJsonString() {
+    	Jsonb jsonb = JsonbBuilder.create();
+    	Artist[] artists = Consumer.consumeWithJsonb(uriInfo.getBaseUri().toString()+"artists");
+    	String result = jsonb.toJson(artists);
+    	return result;
+    }
+    
+    @GET
+    @Path("total/{artist}")
+    @Produces(MediaType.TEXT_PLAIN)
+    public int getTotalAlbuns( @PathParam("artist") String artist ) {
+    	Artist[] artists = Consumer.consumeWithJsonb(uriInfo.getBaseUri().toString()+"artists");
+    	for( int index = 0 ; index < artists.length ; index++ ) {
+    		if( artists[ index ].name.equals( artist ) ) {
+    			return artists[ index ].albums.length;
+    		}
+    	}
+    	return -1;
+    }
 
+    @GET
+    @Path("total")
+    @Produces(MediaType.TEXT_PLAIN)
+    public int getTotalArtists() {
+    	return Consumer.consumeWithJsonb(uriInfo.getBaseUri().toString()+"artists").length;
+    }
+    
+    
 }
